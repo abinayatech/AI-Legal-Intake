@@ -5,6 +5,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import intakeRoutes from "./routes/intake.js";
 import ticketRoutes from "./routes/tickets.js";
+import profileRoutes from "./routes/profile.js";
 
 // Load .env file first before anything else
 dotenv.config();
@@ -37,6 +38,9 @@ app.use("/api/intake", intakeRoutes);
 
 // All ticket operations → /api/tickets
 app.use("/api/tickets", ticketRoutes);
+
+// All profile operations → /api/profile
+app.use("/api/profile", profileRoutes);
 
 // ── Health Check ──────────────────────────────────────
 // Visit http://localhost:3001 to confirm backend is running

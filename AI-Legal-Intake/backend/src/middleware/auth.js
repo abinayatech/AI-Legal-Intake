@@ -1,10 +1,11 @@
 const { createClient } = require('@supabase/supabase-js');
+const supabase = require('../db/supabase');
 
 /**
  * authenticate
  * Verifies the Bearer JWT issued by Supabase Auth.
- * Attaches req.user = { id, email, role } for downstream handlers.
- * Does NOT use the service-role client — user token only.
+ * Attaches req.user = { id, email, role, name } for downstream handlers.
+ * Does NOT use the service-role client to verify the token — user token only.
  */
 async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization || '';
@@ -29,7 +30,6 @@ async function authenticate(req, res, next) {
     }
 
     // Fetch the profile role from the profiles table
-    const { supabase } = require('../config/supabase');
     const { data: profile } = await supabase
       .from('profiles')
       .select('role, name')
