@@ -10,17 +10,29 @@ export const Route = createFileRoute("/_app/tickets")({
   component: TicketsPage,
 });
 
-const STATUSES = ["All", "New", "In Progress", "Resolved"] as const;
+// Canonical status values — must match the backend/email service exactly
+// (see ticketCtrl.js / emailService.js). Filter chips and the per-row
+// select both key off these, with STATUS_LABELS for display only.
+const STATUSES = ["all", "open", "in_progress", "resolved", "closed"] as const;
+type StatusValue = (typeof STATUSES)[number];
+
+const STATUS_LABELS: Record<StatusValue, string> = {
+  all: "All",
+  open: "New",
+  in_progress: "In Progress",
+  resolved: "Resolved",
+  closed: "Closed",
+};
 
 function TicketsPage() {
   const { tickets, loading, error, updateStatus } = useTickets();
-  const [filter, setFilter] = useState<(typeof STATUSES)[number]>("All");
+  const [filter, setFilter] = useState<StatusValue>("all");
   const [q, setQ] = useState("");
   const [updating, setUpdating] = useState<string | number | null>(null);
 
   const filtered = useMemo(() => {
     return tickets.filter((t) => {
-      if (filter !== "All" && t.status !== filter) return false;
+      if (filter !== "all" && t.status !== filter) return false;
       if (q) {
         const hay = `${t.name ?? ""} ${t.email ?? ""} ${t.description ?? ""} ${t.category ?? ""}`.toLowerCase();
         if (!hay.includes(q.toLowerCase())) return false;
@@ -56,7 +68,7 @@ function TicketsPage() {
         <Filter className="h-3.5 w-3.5 text-muted-foreground" />
         {STATUSES.map((s) => {
           const count =
-            s === "All" ? tickets.length : tickets.filter((t) => t.status === s).length;
+            s === "all" ? tickets.length : tickets.filter((t) => t.status === s).length;
           const active = filter === s;
           return (
             <button
@@ -68,7 +80,7 @@ function TicketsPage() {
                   : "border-border bg-surface text-muted-foreground hover:text-foreground"
               }`}
             >
-              {s}
+              {STATUS_LABELS[s]}
               <span className="rounded-full bg-background px-1.5 text-[10px]">
                 {count}
               </span>
@@ -132,18 +144,20 @@ function TicketsPage() {
                 </div>
                 <div>
                   <select
-                    value={t.status ?? "New"}
+                    value={t.status ?? "open"}
                     disabled={updating === t.id}
                     onChange={async (e) => {
                       setUpdating(t.id);
-                      await updateStatus(t.id, e.target.value);
+                      const { error } = await updateStatus(t.id, e.target.value);
                       setUpdating(null);
+                      if (error) alert(error.message ?? "Could not update status.");
                     }}
                     className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-foreground focus:border-primary/60 focus:outline-none disabled:opacity-50"
                   >
-                    <option>New</option>
-                    <option>In Progress</option>
-                    <option>Resolved</option>
+                    <option value="open">New</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
                   </select>
                 </div>
               </li>

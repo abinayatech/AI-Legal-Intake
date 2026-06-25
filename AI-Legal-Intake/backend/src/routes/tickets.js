@@ -1,8 +1,13 @@
-const express = require('express')
-const router = express.Router()
-const { getAllTickets, updateTicketStatus } = require('../controllers/ticketCtrl')
+import express from "express";
+import {
+  getAllTickets,
+  updateTicketStatus,
+} from "../controllers/ticketCtrl.js";
 
-router.get('/', getAllTickets)
-router.patch('/:id/status', updateTicketStatus)
+const router = express.Router();
 
-module.exports = router
+router.get("/", getAllTickets);
+
+router.patch("/:id/status", updateTicketStatus);
+
+export default router;

@@ -1,6 +1,9 @@
-const { createClient } = require('@supabase/supabase-js');
-const supabase = require('../db/supabase');
+// backend/src/middleware/auth.js
 
+import { createClient } from '@supabase/supabase-js';
+import supabase from '../db/supabase.js';
+console.log("URL:", process.env.SUPABASE_URL);
+console.log("ANON:", process.env.SUPABASE_ANON_KEY);
 /**
  * authenticate
  * Verifies the Bearer JWT issued by Supabase Auth.
@@ -67,4 +70,4 @@ function requireRole(...roles) {
   };
 }
 
-module.exports = { authenticate, requireRole };
+export { authenticate, requireRole };

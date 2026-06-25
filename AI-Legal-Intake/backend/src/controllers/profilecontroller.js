@@ -1,4 +1,5 @@
-const profileService = require('../services/profileService')
+// backend/src/controllers/profileController.js
+import profileService from '../services/profileService.js';
 
 /**
  * getMyProfile
@@ -7,13 +8,13 @@ const profileService = require('../services/profileService')
  */
 async function getMyProfile(req, res) {
   try {
-    const profile = await profileService.getProfileById(req.user.id)
+    const profile = await profileService.getProfileById(req.user.id);
     if (!profile) {
-      return res.status(404).json({ error: 'Profile not found' })
+      return res.status(404).json({ error: 'Profile not found' });
     }
-    return res.status(200).json(profile)
+    return res.status(200).json(profile);
   } catch (error) {
-    return res.status(500).json({ error: error.message })
+    return res.status(500).json({ error: error.message });
   }
 }
 
@@ -24,15 +25,15 @@ async function getMyProfile(req, res) {
  */
 async function updateMyProfile(req, res) {
   try {
-    const { name, phone, avatar_url } = req.body
+    const { name, phone, avatar_url } = req.body;
     const updated = await profileService.updateProfile(req.user.id, {
       name,
       phone,
       avatar_url,
-    })
-    return res.status(200).json(updated)
+    });
+    return res.status(200).json(updated);
   } catch (error) {
-    return res.status(500).json({ error: error.message })
+    return res.status(500).json({ error: error.message });
   }
 }
 
@@ -43,26 +44,22 @@ async function updateMyProfile(req, res) {
  */
 async function changeMyPassword(req, res) {
   try {
-    const { currentPassword, newPassword } = req.body
+    const { currentPassword, newPassword } = req.body;
 
     const isValid = await profileService.verifyCurrentPassword(
       req.user.email,
       currentPassword
-    )
+    );
 
     if (!isValid) {
-      return res.status(401).json({ error: 'Current password is incorrect' })
+      return res.status(401).json({ error: 'Current password is incorrect' });
     }
 
-    await profileService.changePassword(req.user.id, newPassword)
-    return res.status(200).json({ message: 'Password updated successfully' })
+    await profileService.changePassword(req.user.id, newPassword);
+    return res.status(200).json({ message: 'Password updated successfully' });
   } catch (error) {
-    return res.status(500).json({ error: error.message })
+    return res.status(500).json({ error: error.message });
   }
 }
 
-module.exports = {
-  getMyProfile,
-  updateMyProfile,
-  changeMyPassword,
-}
+export { getMyProfile, updateMyProfile, changeMyPassword };

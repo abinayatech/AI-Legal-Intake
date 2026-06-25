@@ -1,33 +1,48 @@
-const supabase = require('../db/supabase')
+// backend/src/controllers/ticketCtrl.js
 
-async function getAllTickets(req, res) {
+import supabase from "../db/supabase.js";
+import { sendStatusUpdateEmail } from "../services/emailService.js";
+
+export async function getAllTickets(req, res) {
   const { data, error } = await supabase
-    .from('tickets')
-    .select('*')
-    .order('created_at', { ascending: false })
+    .from("tickets")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-  if (error) return res.status(500).json({ error: error.message })
-  return res.json(data)
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  return res.json(data);
 }
 
-async function updateTicketStatus(req, res) {
-  const { id } = req.params
-  const { status } = req.body
+export async function updateTicketStatus(req, res) {
+  const { id } = req.params;
+  const { status } = req.body;
 
-  const allowed = ['open', 'in_progress', 'resolved', 'closed']
-  if (!allowed.includes(status)) {
-    return res.status(400).json({ error: 'Invalid status value' })
+  const VALID_STATUSES = ["open", "in_progress", "resolved", "closed"];
+  if (!status || !VALID_STATUSES.includes(status)) {
+    return res.status(400).json({
+      error: `status must be one of: ${VALID_STATUSES.join(", ")}`,
+    });
   }
 
   const { data, error } = await supabase
-    .from('tickets')
+    .from("tickets")
     .update({ status })
-    .eq('id', id)
+    .eq("id", id)
     .select()
-    .single()
+    .single();
 
-  if (error) return res.status(500).json({ error: error.message })
-  return res.json(data)
+  if (error) {
+    console.error("❌ updateTicketStatus DB error:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+
+  // Send client notification — failure must not break the response
+  sendStatusUpdateEmail(data).catch((err) =>
+    console.error("⚠️ Status update email failed:", err.message)
+  );
+
+  return res.json(data);
 }
-
-module.exports = { getAllTickets, updateTicketStatus }

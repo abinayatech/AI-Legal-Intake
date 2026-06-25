@@ -41,7 +41,9 @@ function ResultPage() {
     }
   }, []);
 
-  const ticket: Ticket = (result?.ticket || result || {}) as Ticket;
+  // Support both { ticket: {...} } and flat response shapes
+  const ticket: Ticket = (result?.ticket ?? result ?? {}) as Ticket;
+
   const suggested = Array.isArray(ticket.suggested_documents)
     ? ticket.suggested_documents
     : [];
@@ -108,7 +110,7 @@ function ResultPage() {
             value={
               typeof ticket.confidence === "number"
                 ? `${Math.round(ticket.confidence * 100)}%`
-                : "—"
+                : "Not Available"
             }
             sub="Model certainty"
           />
@@ -117,13 +119,7 @@ function ResultPage() {
         {/* Main two-col */}
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            <Panel icon={Brain} title="Executive summary">
-              <p className="text-sm leading-relaxed text-foreground/90">
-                {ticket.summary ??
-                  "The model did not return a summary for this matter. The raw description has been preserved on the ticket for counsel review."}
-              </p>
-            </Panel>
-
+            
             {ticket.reasoning && (
               <Panel icon={Sparkles} title="AI reasoning">
                 <p className="text-sm leading-relaxed text-muted-foreground">
@@ -146,7 +142,7 @@ function ResultPage() {
                   ))}
                 </ul>
               ) : (
-                <EmptyLine text="Counsel will define next actions on review." />
+                <EmptyLine text="Counsel will define next actions during review." />
               )}
             </Panel>
           </div>
@@ -166,13 +162,13 @@ function ResultPage() {
                   ))}
                 </ul>
               ) : (
-                <EmptyLine text="No specific documents suggested." />
+                <EmptyLine text="No documents suggested." />
               )}
             </Panel>
 
             <Panel icon={Building2} title="Recommended department">
               <p className="text-sm text-foreground">
-                {ticket.recommended_department ?? "Routing pending counsel review."}
+                {ticket.recommended_department || "General Legal Review"}
               </p>
             </Panel>
 

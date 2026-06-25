@@ -1,4 +1,5 @@
-const { body } = require('express-validator')
+// backend/src/validation/profileValidation.js
+import { body } from 'express-validator';
 
 /**
  * updateProfileRules
@@ -24,7 +25,7 @@ const updateProfileRules = [
     .trim()
     .isURL()
     .withMessage('Avatar URL must be a valid URL'),
-]
+];
 
 /**
  * changePasswordRules
@@ -48,6 +49,6 @@ const changePasswordRules = [
   body('confirmPassword')
     .custom((value, { req }) => value === req.body.newPassword)
     .withMessage('Passwords do not match'),
-]
+];
 
-module.exports = { updateProfileRules, changePasswordRules }
+export { updateProfileRules, changePasswordRules };

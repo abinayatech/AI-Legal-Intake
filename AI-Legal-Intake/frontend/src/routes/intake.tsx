@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { supabase } from "../lib/supabase";
 import { useState } from "react";
 import {
   ArrowLeft,
@@ -73,13 +74,44 @@ function IntakePage() {
     setSubmitting(true);
     setError("");
     try {
-      // Preserved 1:1 payload from original IntakeForm.jsx
+      // ── Upload each file and collect the storage paths ──────────────
+      // supabase.storage.upload() returns { data: { path }, error }.
+      // We use data.path (the canonical path Supabase assigned) rather
+      // than the local fileName variable so the value always matches what
+      // is actually stored in the bucket.
+      const uploadedFiles: string[] = [];
+
+      for (const file of form.files) {
+        const fileName = `${Date.now()}-${file.name}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("documents")
+          .upload(fileName, file);
+
+        if (uploadError) {
+          throw new Error(`File upload failed for "${file.name}": ${uploadError.message}`);
+        }
+
+        // data.path is the canonical storage path returned by Supabase.
+        // Fall back to the local fileName only if path is somehow absent
+        // (it never should be on a successful upload).
+        uploadedFiles.push(uploadData?.path ?? fileName);
+      }
+
+      // ── Submit intake — always send documents array (may be []) ─────
       const data = await submitIntake({
         name: form.name,
         email: form.email,
+        phone: form.phone,
+        matterType: form.matterType,
         description: form.description,
+        documents: uploadedFiles,
       });
-      sessionStorage.setItem("lex.lastResult", JSON.stringify(data));
+
+      sessionStorage.setItem(
+        "lex.lastResult",
+        JSON.stringify(data.ticket),
+      );
       navigate({ to: "/result" });
     } catch (e) {
       setError(
@@ -206,7 +238,14 @@ function IntakePage() {
                 className="w-full resize-none rounded-lg border border-border bg-surface/70 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <p className="text-xs text-muted-foreground">
-                {form.description.length} characters · {form.description.trim().split(/\s+/).filter(Boolean).length} words
+                {form.description.length} characters ·{" "}
+                {
+                  form.description
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean).length
+                }{" "}
+                words
               </p>
             </StepShell>
           )}

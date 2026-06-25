@@ -8,6 +8,7 @@ import {
   Sparkles,
   Brain,
   Plus,
+  FolderOpen,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -17,9 +18,6 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  PieChart,
-  Pie,
-  Cell,
 } from "recharts";
 import { useTickets } from "@/lib/tickets-hook";
 import { UrgencyBadge, StatusPill } from "@/components/urgency-badge";
@@ -48,7 +46,7 @@ function DashboardPage() {
   }, [tickets]);
 
   const trend = useMemo(() => buildTrend(tickets), [tickets]);
-  const urgencyMix = useMemo(() => buildUrgencyMix(tickets), [tickets]);
+  const categoryMix = useMemo(() => buildCategoryMix(tickets), [tickets]);
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
@@ -121,48 +119,45 @@ function DashboardPage() {
           </div>
         </div>
 
+        {/* Matter Categories card — replaces Urgency Mix */}
         <div className="rounded-2xl border border-border bg-surface/50 p-6">
-          <h2 className="text-sm font-medium text-foreground">Urgency mix</h2>
-          <p className="text-xs text-muted-foreground">Across open matters</p>
-          <div className="mt-2 h-48">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={urgencyMix}
-                  innerRadius={48}
-                  outerRadius={72}
-                  paddingAngle={3}
-                  dataKey="value"
-                  stroke="var(--background)"
-                  strokeWidth={2}
-                >
-                  {urgencyMix.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--popover)",
-                    border: "1px solid var(--border)",
-                    borderRadius: 8,
-                    fontSize: 12,
-                    color: "var(--foreground)",
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <ul className="mt-2 space-y-1.5 text-xs">
-            {urgencyMix.map((u) => (
-              <li key={u.name} className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-muted-foreground">
-                  <span className="h-2 w-2 rounded-full" style={{ background: u.color }} />
-                  {u.name}
-                </span>
-                <span className="text-foreground">{u.value}</span>
-              </li>
-            ))}
-          </ul>
+          <h2 className="text-sm font-medium text-foreground">Matter categories</h2>
+          <p className="text-xs text-muted-foreground">By ticket count</p>
+
+          {loading ? (
+            <div className="mt-4 space-y-3">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="h-3 w-24 animate-pulse rounded bg-surface-elevated" />
+                  <div className="h-2 flex-1 animate-pulse rounded bg-surface-elevated" />
+                  <div className="h-3 w-6 animate-pulse rounded bg-surface-elevated" />
+                </div>
+              ))}
+            </div>
+          ) : categoryMix.length === 0 ? (
+            <div className="mt-8 flex flex-col items-center justify-center gap-2 text-center">
+              <FolderOpen className="h-6 w-6 text-muted-foreground" />
+              <p className="text-sm text-foreground">No matters yet</p>
+              <p className="text-xs text-muted-foreground">Categories will appear once tickets are submitted.</p>
+            </div>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {categoryMix.map(({ category, count, pct }) => (
+                <li key={category}>
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">{category}</span>
+                    <span className="text-xs font-medium text-foreground">{count}</span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-elevated">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
 
@@ -252,15 +247,17 @@ function buildTrend(tickets: { created_at?: string }[]) {
   return days;
 }
 
-function buildUrgencyMix(tickets: { urgency?: string }[]) {
-  const high = tickets.filter((t) => t.urgency === "High").length;
-  const medium = tickets.filter((t) => t.urgency === "Medium").length;
-  const low = tickets.filter((t) => t.urgency === "Low").length;
-  return [
-    { name: "High", value: high, color: "var(--urgency-high)" },
-    { name: "Medium", value: medium, color: "var(--urgency-medium)" },
-    { name: "Low", value: low, color: "var(--urgency-low)" },
-  ];
+function buildCategoryMix(tickets: { category?: string }[]) {
+  const counts = new Map<string, number>();
+  for (const t of tickets) {
+    const cat = t.category ?? "Uncategorized";
+    counts.set(cat, (counts.get(cat) ?? 0) + 1);
+  }
+  const sorted = Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([category, count]) => ({ category, count }));
+  const max = sorted[0]?.count ?? 1;
+  return sorted.map((entry) => ({ ...entry, pct: Math.round((entry.count / max) * 100) }));
 }
 
 function KpiCard({

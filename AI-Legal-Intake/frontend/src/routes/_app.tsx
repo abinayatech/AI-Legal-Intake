@@ -96,7 +96,7 @@ function breadcrumbFor(p: string) {
   if (p.startsWith("/dashboard")) return "Dashboard";
   if (p.startsWith("/tickets")) return "Tickets";
   if (p.startsWith("/analytics")) return "Analytics";
-  if (p.startsWith("/documents")) return "Documents";
+  if (p.startsWith("/Directory")) return "Directory";
   if (p.startsWith("/profile")) return "Profile";
   if (p.startsWith("/settings")) return "Settings";
   return "Overview";

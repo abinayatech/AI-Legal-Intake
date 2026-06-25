@@ -28,7 +28,7 @@ const primary = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Tickets", url: "/tickets", icon: Inbox },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
-  { title: "Documents", url: "/documents", icon: FolderOpen },
+  { title: "Client Directory", url: "/documents", icon: FolderOpen },
 ] as const;
 
 const secondary = [

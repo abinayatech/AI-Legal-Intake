@@ -141,14 +141,23 @@ function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-6 flex items-center justify-between text-xs text-muted-foreground">
-              <Link to="/" className="hover:text-foreground">
-                ← Back to site
-              </Link>
-              <Link to="/intake" className="hover:text-foreground">
-                Submit intake instead →
-              </Link>
-            </div>
+           <div className="mt-6 space-y-4">
+
+  <div className="flex items-center justify-between text-xs text-muted-foreground">
+    <Link to="/" className="hover:text-foreground">
+      ← Back to site
+    </Link>
+
+    <Link to="/intake" className="hover:text-foreground">
+      Submit intake instead →
+    </Link>
+  </div>
+
+  <p className="mt-6 text-center text-[11px] text-muted-foreground">
+  Protected by enterprise-grade encryption. Audit-trail enabled.
+</p>
+
+</div>
           </div>
 
           <p className="mt-6 text-center text-[11px] text-muted-foreground">

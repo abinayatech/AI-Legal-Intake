@@ -1,4 +1,6 @@
-const supabase = require('../db/supabase')
+// backend/src/services/profileService.js
+import { createClient } from '@supabase/supabase-js';
+import supabase from '../db/supabase.js';
 
 /**
  * getProfileById
@@ -9,10 +11,10 @@ async function getProfileById(userId) {
     .from('profiles')
     .select('id, name, email, phone, role, avatar_url, created_at, updated_at')
     .eq('id', userId)
-    .single()
+    .single();
 
-  if (error) throw error
-  return data
+  if (error) throw error;
+  return data;
 }
 
 /**
@@ -21,12 +23,12 @@ async function getProfileById(userId) {
  * Role is intentionally excluded — never settable from this path.
  */
 async function updateProfile(userId, updates) {
-  const allowedFields = ['name', 'phone', 'avatar_url']
-  const payload = {}
+  const allowedFields = ['name', 'phone', 'avatar_url'];
+  const payload = {};
 
   for (const field of allowedFields) {
     if (updates[field] !== undefined) {
-      payload[field] = updates[field]
+      payload[field] = updates[field];
     }
   }
 
@@ -35,10 +37,10 @@ async function updateProfile(userId, updates) {
     .update(payload)
     .eq('id', userId)
     .select('id, name, email, phone, role, avatar_url, created_at, updated_at')
-    .single()
+    .single();
 
-  if (error) throw error
-  return data
+  if (error) throw error;
+  return data;
 }
 
 /**
@@ -51,10 +53,10 @@ async function updateProfile(userId, updates) {
 async function changePassword(userId, newPassword) {
   const { data, error } = await supabase.auth.admin.updateUserById(userId, {
     password: newPassword,
-  })
+  });
 
-  if (error) throw error
-  return data
+  if (error) throw error;
+  return data;
 }
 
 /**
@@ -63,24 +65,23 @@ async function changePassword(userId, newPassword) {
  * change, by attempting a sign-in with it via the anon client.
  */
 async function verifyCurrentPassword(email, currentPassword) {
-  const { createClient } = require('@supabase/supabase-js')
   const supabaseAnon = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_ANON_KEY,
     { auth: { persistSession: false } }
-  )
+  );
 
   const { error } = await supabaseAnon.auth.signInWithPassword({
     email,
     password: currentPassword,
-  })
+  });
 
-  return !error
+  return !error;
 }
 
-module.exports = {
+export default {
   getProfileById,
   updateProfile,
   changePassword,
   verifyCurrentPassword,
-}
+};

@@ -10,6 +10,9 @@ import {
   ChevronRight,
   Plus,
   Minus,
+  Mail,
+  MapPin,
+  Clock,
 } from "lucide-react";
 import { useState } from "react";
 import heroOffice from "../assets/hero-office.jpg";
@@ -259,8 +262,8 @@ function Testimonial() {
   return (
     <section className="mx-auto max-w-5xl px-6 py-28 text-center">
       <blockquote className="font-display text-3xl leading-snug text-foreground sm:text-4xl">
-        “We routed a quarter of our intake without a paralegal touching it in
-        week one. The triage justifications alone are worth the seat.”
+        "We routed a quarter of our intake without a paralegal touching it in
+        week one. The triage justifications alone are worth the seat."
       </blockquote>
       <div className="mt-8 text-sm text-muted-foreground">
         Margaret Chen, Managing Partner — Chen &amp; Reyes LLP
@@ -336,11 +339,101 @@ function CTA() {
 function Footer() {
   return (
     <footer className="border-t border-border bg-surface/30">
-      <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-6 py-10 sm:flex-row sm:items-center">
-        <Brand />
-        <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Lex Triage. Privileged &amp; confidential.
-        </p>
+      {/* Main footer body */}
+      <div className="mx-auto max-w-7xl px-6 py-14">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3">
+
+          {/* Left — brand */}
+          <div className="flex flex-col gap-4">
+            <Brand />
+            <p className="text-xs uppercase tracking-[0.18em] text-primary">
+              AI Legal Operations
+            </p>
+            <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
+              AI-powered legal intake and client triage platform for faster matter
+              classification.
+            </p>
+          </div>
+
+          {/* Center — quick links */}
+          <div>
+            <p className="mb-5 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              Quick links
+            </p>
+            <ul className="space-y-3 text-sm">
+              {[
+                { label: "Platform", href: "#features" },
+                { label: "How it works", href: "#how" },
+                { label: "FAQ", href: "#faq" },
+              ].map((l) => (
+                <li key={l.label}>
+                  <a
+                    href={l.href}
+                    className="text-muted-foreground transition hover:text-foreground"
+                  >
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+              <li>
+                <Link
+                  to="/login"
+                  className="text-muted-foreground transition hover:text-foreground"
+                >
+                  Sign in
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/intake"
+                  className="text-muted-foreground transition hover:text-foreground"
+                >
+                  Start intake
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Right — contact */}
+          <div>
+            <p className="mb-5 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              Contact
+            </p>
+            <ul className="space-y-4 text-sm">
+              <li className="flex items-start gap-3 text-muted-foreground">
+                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <a
+                  href="mailto:abinayatech.dev@gmail.com"
+                  className="transition hover:text-foreground"
+                >
+                  abinayatech.dev@gmail.com
+                </a>
+              </li>
+              <li className="flex items-start gap-3 text-muted-foreground">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>Coimbatore, Tamil Nadu, India</span>
+              </li>
+              <li className="flex items-start gap-3 text-muted-foreground">
+                <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>Monday–Friday, 9:00 AM – 6:00 PM IST</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="border-t border-border">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 py-5 sm:flex-row">
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} Lex Triage. All rights reserved.
+          </p>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <a href="#" className="transition hover:text-foreground">Privacy Policy</a>
+            <span className="text-border-strong">|</span>
+            <a href="#" className="transition hover:text-foreground">Terms of Service</a>
+          </div>
+        </div>
       </div>
     </footer>
   );

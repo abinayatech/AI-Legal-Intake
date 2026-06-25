@@ -1,4 +1,5 @@
-const { validationResult } = require('express-validator');
+// backend/src/middleware/validate.js
+import { validationResult } from 'express-validator';
 
 /**
  * validate
@@ -16,4 +17,4 @@ function validate(req, res, next) {
   next();
 }
 
-module.exports = { validate };
+export { validate };
